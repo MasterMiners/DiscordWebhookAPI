@@ -28,24 +28,21 @@ declare(strict_types = 1);
 
 namespace CortexPE\DiscordWebhookAPI\task;
 
-
 use CortexPE\DiscordWebhookAPI\Message;
 use CortexPE\DiscordWebhookAPI\Webhook;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 
 class DiscordWebhookSendTask extends AsyncTask {
-	/** @var Webhook */
-	protected $webhook;
-	/** @var Message */
-	protected $message;
+	protected Webhook $webhook;
+	protected Message $message;
 
 	public function __construct(Webhook $webhook, Message $message){
 		$this->webhook = $webhook;
 		$this->message = $message;
 	}
 
-	public function onRun(){
+	public function onRun(): void{
 		$ch = curl_init($this->webhook->getURL());
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($this->message));
 		curl_setopt($ch, CURLOPT_POST,true);
@@ -57,7 +54,8 @@ class DiscordWebhookSendTask extends AsyncTask {
 		curl_close($ch);
 	}
 
-	public function onCompletion(Server $server){
+	public function onCompletion(): void{
+		$server = Server::getInstance();
 		$response = $this->getResult();
 		if($response !== ""){
 			$server->getLogger()->error("[DiscordWebhookAPI] Got error: " . $response);
